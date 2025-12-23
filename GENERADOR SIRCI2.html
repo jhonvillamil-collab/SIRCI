@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Generador de Reporte SIRCI</title>
+<style>
+  /* Estilo para el fondo con la imagen */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: url('./96d473e6-29ff-4d09-8372-e298038d21ec.png') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+    color: white; /* texto claro para contraste */
+  }
+
+  /* Capa oscura para mejorar lectura */
+  body::before {
+    content: "";
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.65);
+    z-index: -1;
+  }
+
+  textarea, input {
+    width: 100%;
+    padding: 6px;
+    margin-top: 4px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+
+  textarea, input[type="text"] {
+    background-color: rgba(255,255,255,0.9);
+    color: #000;
+  }
+
+  button {
+    padding: 10px 15px;
+    margin: 10px 5px 20px 0;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    border: none;
+  }
+
+  button#btnGenerar { background-color: #4CAF50; color: white; }
+  button#btnCopiar { background-color: #2196F3; color: white; }
+  button#btnLimpiar { background-color: #f44336; color: white; }
+
+  .reporte {
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    max-width: 750px;
+    border-radius: 6px;
+    color: #000;
+  }
+
+  .campo { margin-bottom: 10px; }
+  label { font-weight: bold; }
+
+  #mensaje {
+    display: none;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  #mensaje.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+  #mensaje.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+</style>
+</head>
+<body>
+
+<h1>Generador de Reporte desde Nota Sirci</h1>
+
+<div id="mensaje"></div>
+
+<h3>Nota</h3>
+<textarea id="nota" rows="6" placeholder="Pega aquí la nota completa..."></textarea>
+
+<button id="btnGenerar">Generar reporte</button>
+<button id="btnCopiar">Copiar reporte</button>
+<button id="btnLimpiar">Limpiar todo</button>
+
+<div class="reporte">
+  <h2>Detalle del reporte</h2>
+
+<div class="campo">
+  <label>Nombre de contacto:</label>
+  <select id="nombreContacto">
+    <option value="">Seleccione un contacto</option>
+
+    <option>ERICA DAYANA RODRIGUEZ UMAÑA</option>
+    <option>PABLO ENRIQUE SAMPER GALVIS</option>
+    <option>NEYDER FABIAN MORENO MENDOZA</option>
+    <option>RICHARD DE JESUS ARRIETA OCHOA</option>
+    <option>CRISTIAN QUIÑONEZ REINOSO</option>
+    <option>IVAN MAURICIO GOMEZ MEDINA</option>
+    <option>SAMUEL DAZA DAZA</option>
+    <option>GERMAN SILVA DURAN</option>
+    <option>JHON DIEGO PINEDA SANDOVAL</option>
+    <option>CARLOS ARLEY CRUZ VARGAS</option>
+    <option>DIEGO ALEXANDER BELTRAN</option>
+    <option>RICARDO BARON</option>
+    <option>JHON JAIRO RINCON VILLAMIL</option>
+
+  </select>
+</div>
+
+  <div class="campo"><label>Teléfono de contacto:</label><input value="3242911284" readonly></div>
+  <div class="campo"><label>Tabla:</label><input id="tabla"></div>
+  <div class="campo"><label>Ruta:</label><input id="ruta"></div>
+  <div class="campo"><label>Viaje:</label><input id="viaje"></div>
+  <div class="campo"><label>Servicio:</label><input value="ZONAL" readonly></div>
+  <div class="campo"><label>Descripción del reporte:</label><textarea id="descripcion" rows="3"></textarea></div>
+  <div class="campo"><label>Fecha y hora de novedad:</label><input id="fechaHora"></div>
+  <div class="campo"><label>Código operador (si aplica):</label><input id="operador"></div>
+  <div class="campo"><label>La Novedad es intermitente o durante toda la ruta?:</label><input value="INTERMITENTE" readonly></div>
+  <div class="campo"><label>Ubicación aproximada de la novedad:</label><input id="ubicacion"></div>
+
+</div>
+
+<script>
+function extraerDato(nota, etiqueta) {
+  const regex = new RegExp(etiqueta + "\\s*:?\\s*([^/]+)", "i");
+  const match = nota.match(regex);
+  return match ? match[1].trim() : "";
+}
+
+function mostrarMensaje(texto, tipo="success") {
+  const mensajeDiv = document.getElementById("mensaje");
+  mensajeDiv.textContent = texto;
+  mensajeDiv.className = tipo === "success" ? "success" : "error";
+  mensajeDiv.style.display = "block";
+  setTimeout(() => {
+    mensajeDiv.style.display = "none";
+  }, 3000);
+}
+
+document.getElementById("btnGenerar").addEventListener("click", function () {
+  const nota = document.getElementById("nota").value;
+
+  if(!nota.trim()){
+    mostrarMensaje("Por favor, pega la nota primero.", "error");
+    return;
+  }
+
+  const fecha = extraerDato(nota, "Fecha");
+  const hora = extraerDato(nota, "Hora");
+
+  document.getElementById("tabla").value = extraerDato(nota, "Tabla");
+  document.getElementById("ruta").value = extraerDato(nota, "Ruta");
+  document.getElementById("viaje").value = extraerDato(nota, "Viaje");
+  document.getElementById("operador").value = extraerDato(nota, "Operador");
+  document.getElementById("fechaHora").value = fecha + " " + hora;
+  document.getElementById("ubicacion").value =
+    extraerDato(nota, "Dirección") + " - " + extraerDato(nota, "Sentido");
+
+const novedadSirci = (() => {
+    const regex = /(?:\*?\s*(?:novedades\s+sirci|sirci)\s*\*?)\s*([^/]+)/i;
+    const match = nota.match(regex);
+    return match ? match[1].trim() : "No se encontró la novedad SIRCI";
+})();
+
+  const gestion = extraerDato(nota, "Gestión") || "";
+  const ticket = extraerDato(nota, "Ticket") || "Pendiente";
+
+  document.getElementById("descripcion").value =
+    `${novedadSirci}. ${gestion}. Ticket: ${ticket}`;
+
+  mostrarMensaje("¡Reporte generado correctamente!");
+});
+
+document.getElementById("btnCopiar").addEventListener("click", function () {
+  const texto =
+`Detalle del reporte
+
+Nombre de contacto: ${document.getElementById("nombreContacto").value}
+Teléfono de contacto: 3242911284
+Tabla: ${document.getElementById("tabla").value}
+Ruta: ${document.getElementById("ruta").value}
+Viaje: ${document.getElementById("viaje").value}
+Servicio: ZONAL
+Descripción del reporte: ${document.getElementById("descripcion").value}
+Fecha y hora de novedad: ${document.getElementById("fechaHora").value}
+Código operador (si aplica): ${document.getElementById("operador").value}
+La Novedad es intermitente o durante toda la ruta?: INTERMITENTE
+Ubicación aproximada de la novedad: ${document.getElementById("ubicacion").value}
+`;
+
+  navigator.clipboard.writeText(texto)
+    .then(() => mostrarMensaje("¡Reporte copiado al portapapeles!"))
+    .catch(() => mostrarMensaje("No se pudo copiar. Usa Chrome o Edge.", "error"));
+});
+
+document.getElementById("btnLimpiar").addEventListener("click", function () {
+  document.getElementById("nota").value = "";
+  document.getElementById("tabla").value = "";
+  document.getElementById("ruta").value = "";
+  document.getElementById("viaje").value = "";
+  document.getElementById("descripcion").value = "";
+  document.getElementById("fechaHora").value = "";
+  document.getElementById("operador").value = "";
+  document.getElementById("ubicacion").value = "";
+  mostrarMensaje("¡Todo limpio!", "success");
+});
+</script>
+
+</body>
+</html>
